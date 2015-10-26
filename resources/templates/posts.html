@@ -1,8 +1,14 @@
 <html>
 <body>
 <form action="create-post" method="post">
-    <input type="text" placeholder="Write a post" name="post"/>
+    <input type="text" placeholder="Write a post" name="posts"/>
     <button type="submit">Submit</button>
+    <br>
+
+    Posts by {{username}}:<br>
+    {{#posts}}
+    {{text}}<br>
+    {{/posts}}
 </form>
 </body>
 </html>
