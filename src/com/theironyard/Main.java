@@ -7,12 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
-
     public static void main(String[] args) {
-        //User user = new User();
         ArrayList<Post> posts = new ArrayList();
-       //Spark.staticFileLocation("/public");
-        //Spark.init();
         Spark.get(
                 "/",
                 ((request, response) -> {
