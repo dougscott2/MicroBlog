@@ -1,0 +1,25 @@
+<html>
+<body>
+<form action="create-post" method="post">
+    <input type="text" placeholder="Write a post" name="text"/>
+    <button type="submit">Submit</button>
+    </form> <!-- be sure to end your form before starting another one -->
+<br>
+    <form action ="delete-post" method="post">
+        <input type="text" placeholder="Post #" name="postid">
+        <button type="submit">Delete</button>
+        </form>
+<br>
+    <form action="edit-post" method="post">
+        <input type="text" placeholder="Post #" name="postid">
+        <input type="text" placeholder="Edit Post" name="edit" size="50">
+        <button type="submit">Edit </button>
+    </form>
+<br>
+    Posts by {{username}}:<br>
+    {{#posts}}
+    {{id}}. {{text}}<br>   <!-- taken from Post.Java object, post.text text -->
+    {{/posts}}
+<!-- html syntax is annyoing -->
+</body>
+</html>
