@@ -1,4 +1,5 @@
 package com.theironyard;
+import com.oracle.javafx.jmx.SGMXBean;
 import spark.ModelAndView;
 import spark.Session;
 import spark.Spark;
@@ -7,30 +8,58 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Main {
+    static User user;
     public static void main(String[] args) {
-        ArrayList<Post> posts = new ArrayList();
+       // ArrayList<Post> posts = new ArrayList();
+        HashMap<String, User> users = new HashMap<>();
+        User doug = new User("Doug", "1234");
+        doug.posts = new ArrayList<>();
+        users.put(doug.name, doug);
+
+
+
         Spark.get(
                 "/",
                 ((request, response) -> {
                     Session session = request.session();
                     String name = session.attribute("username");
-                    if (name == null){
+                    String password = session.attribute("password");
+                    //user = new User(name, password);
+                    if (user==null){
                         return new ModelAndView(new HashMap(), "not-logged-in.html");
+                    } else {
+                        HashMap m = new HashMap();
+                        m.put("username", user.name);
+                        m.put("posts", user.posts);
+                        return new ModelAndView(m, "/logged-in.html");
                     }
-                    HashMap m = new HashMap();
-                    m.put("username", name);
-                    m.put("posts", posts);
-                    return new ModelAndView(m, "/logged-in.html");
+
+
                 }),
                 new MustacheTemplateEngine()
         );//end get
+
+
+
         Spark.post(
                 "/create-user",
                 ((request, response) -> {
                     String name = request.queryParams("username");
-                    Session session = request.session();
-                    session.attribute("username", name);
-                    response.redirect("/");
+                    String password = request.queryParams("password");
+                    if (!users.containsKey(name)){
+                        user = new User(name,password);
+                        user.posts = new ArrayList<Post>();
+                        users.put(user.name, user);
+                        Session session = request.session();
+                        session.attribute("username", name);
+                        response.redirect("/");
+                    } else if (password.equals(users.get(name).password)){
+                        user = users.get(name);
+                        response.redirect("/");
+                    } else {
+                        response.redirect("/");
+                    }
+
                     return "";
                 })
         );//end post
@@ -38,9 +67,9 @@ public class Main {
                  "/create-post",
                  ((request, response) -> {
                      Post post = new Post();
-                     post.id = posts.size() + 1; //haha don't have to make a new int above and ++ it
+                     post.id = user.posts.size() + 1; //haha don't have to make a new int above and ++ it
                      post.text = request.queryParams("text");
-                     posts.add(post);
+                     user.posts.add(post);
                      response.redirect("/");
                      return "";
                  })
@@ -51,9 +80,9 @@ public class Main {
                     String id = request.queryParams("postid");
                     try{
                         int idNum = Integer.valueOf(id);
-                        posts.remove(idNum - 1);
-                        for (int i =0; i<posts.size(); i++){
-                            posts.get(i).id = i + 1;
+                        user.posts.remove(idNum - 1);
+                        for (int i =0; i<user.posts.size(); i++){
+                            user.posts.get(i).id = i + 1;
                         }
                     }
                     catch (Exception e){
@@ -66,14 +95,10 @@ public class Main {
                 "/edit-post",
                 ((request, response) -> {
                     String id = request.queryParams("postid");
+                    int idNum = Integer.valueOf(id);
                     try{
-                        int idNum = Integer.valueOf(id);
-                        posts.get(idNum-1).text = request.queryParams("edit");
-                        for (int i = 0; i<posts.size(); i++){
-                            posts.get(i).id = i+1;
-                        }
+                        user.posts.get(idNum-1).text = request.queryParams("edit");
                     }catch (Exception e){
-
                     }
                     response.redirect("/");
                     return "";
